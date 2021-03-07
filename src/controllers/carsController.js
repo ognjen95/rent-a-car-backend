@@ -14,7 +14,7 @@ const {
 
 const createNewCarController = async (req, res) => {
   const newCarData = req.body;
-  // console.log(req.file);
+
   try {
     if (!newCarData)
       return res.json({

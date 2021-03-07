@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const upload = require('./src/middleware/multer');
+const path = require('path');
 
 app.use(helmet());
 app.use(cors());
@@ -39,17 +39,15 @@ app.get('/', (req, res, next) => {
 const carsRouter = require('./src/routes/carsRoutes');
 const customersRouter = require('./src/routes/customersRoutes');
 const rentRouter = require('./src/routes/rentRoutes');
+const uploadRouter = require('./src/routes/uploadRoute');
 
 // // User Routers
 app.use('/api/cars', carsRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/rent-a-car', rentRouter);
+app.use('/api/upload', uploadRouter);
 
-app.post('/single', upload.single('imgUrl'), (req, res) => {
-  console.log(req.file);
-
-  res.send(req.file);
-});
+app.use('uploads', express.static(__dirname + '/uploads'));
 // Error handler
 const handleError = require('./src/utils/errorHandler');
 
