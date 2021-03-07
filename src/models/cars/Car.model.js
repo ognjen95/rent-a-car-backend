@@ -25,15 +25,45 @@ const insertCar = (carObj) => {
   });
 };
 
-const updateCar = ({ _id, brand, model, year, fuel, seats, imgUrl, price }) => {
-  return new Promise((resolve, reject) => {});
-};
-
 const deleteCar = (_id) => {
   return new Promise((resolve, reject) => {
     if (!_id) return false;
     try {
       CarSchema.findByIdAndDelete(_id, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const isRented = (_id) => {
+  return new Promise((resolve, reject) => {
+    if (!_id) return false;
+    try {
+      CarSchema.findByIdAndUpdate(_id, { isRented: true }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const isReturned = (_id) => {
+  return new Promise((resolve, reject) => {
+    if (!_id) return false;
+    try {
+      CarSchema.findByIdAndUpdate(_id, { isRented: false }, (err, data) => {
         if (err) {
           reject(err);
         } else {
@@ -62,4 +92,24 @@ const getCarList = () => {
   });
 };
 
-module.exports = { insertCar, updateCar, findCarById, deleteCar, getCarList };
+const getClientsRentedCars = (rentals) => {
+  return new Promise((resolve, reject) => {
+    try {
+      CarSchema.find({ _id: { $in: rentals } })
+        .then((data) => resolve(data))
+        .catch((err) => reject(err));
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+module.exports = {
+  insertCar,
+  findCarById,
+  deleteCar,
+  getCarList,
+  isRented,
+  isReturned,
+  getClientsRentedCars,
+};

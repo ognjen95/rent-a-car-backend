@@ -4,23 +4,36 @@ const {
   deleteCar,
   findCarById,
 } = require('../models/cars/Car.model');
-
+const {
+  deleteCarType,
+  insertCarType,
+} = require('../models/vehicle-types/vehicleTypes.model');
 // @ create car controller
 // @router POST /api/cars/create-new-car
 // @access Public
 
 const createNewCarController = async (req, res) => {
   const newCarData = req.body;
-
+  // console.log(req.file);
   try {
+    if (!newCarData)
+      return res.json({
+        status: 'error',
+        message: 'Can not create new car now, try again later',
+      });
+
     const result = await insertCar(newCarData);
-    return res.json({ message: 'New car created', result });
+    let typeResult;
+    if (result) {
+      typeResult = await insertCarType(result);
+    }
+
+    return res.json({ message: 'New car created', result, typeResult });
   } catch (error) {
-    console.log('error');
+    console.log(error);
     res.json({ status: 'error', message: error.message });
   }
 };
-
 // @ update car controller
 // @router PUT /api/cars/edit-car/:id
 // @access Public
@@ -41,7 +54,7 @@ const editCarController = async (req, res) => {
       car.price = price;
     }
 
-    result = await insertCar(car);
+    const result = await insertCar(car);
 
     return res.json({ message: 'Car updated successfuly', result });
   } catch (error) {
@@ -49,12 +62,15 @@ const editCarController = async (req, res) => {
     res.json({ status: 'error', message: error.message });
   }
 };
-
+// @delete car controller
+// @router DELETE /api/cars/delete-car/:id
+// @access Public
 const deleteCarController = async (req, res) => {
   const carId = req.params.id;
-  const car = await findCarById(carId);
+  // const car = await findCarById(carId);
   try {
-    if (car) {
+    if (carId) {
+      // result = await deleteCarType(carId);
       deleteCar(carId);
     }
     res.json({ message: 'Car deleted successfuly' });
@@ -63,10 +79,26 @@ const deleteCarController = async (req, res) => {
     res.json({ status: 'error', message: error.message });
   }
 };
-
+// @get car list controller
+// @router GET /api/cars/
+// @access Public
 const getCarListController = async (req, res) => {
   try {
-    result = await getCarList();
+    const result = await getCarList();
+    res.status(200).json({ result });
+  } catch (error) {
+    console.log('error');
+    res.json({ status: 'error', message: error.message });
+  }
+};
+
+// @get car  controller
+// @router GET /api/cars/car/:id
+// @access Public
+const getCarController = async (req, res) => {
+  try {
+    const carId = req.params.id;
+    const result = await findCarById(carId);
     res.status(200).json({ result });
   } catch (error) {
     console.log('error');
@@ -79,4 +111,5 @@ module.exports = {
   editCarController,
   deleteCarController,
   getCarListController,
+  getCarController,
 };

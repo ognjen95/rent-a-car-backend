@@ -1,18 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const upload = require('./src/middleware/multer');
 
-//API SECURITY
 app.use(helmet());
-
-//handle CORS error
 app.use(cors());
-
-const mongoose = require('mongoose');
+app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
@@ -33,10 +30,6 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('tiny'));
 }
 
-//Set body parser
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
 const port = process.env.PORT || 5000;
 
 app.get('/', (req, res, next) => {
@@ -44,10 +37,19 @@ app.get('/', (req, res, next) => {
 });
 //Load routers
 const carsRouter = require('./src/routes/carsRoutes');
+const customersRouter = require('./src/routes/customersRoutes');
+const rentRouter = require('./src/routes/rentRoutes');
 
 // // User Routers
 app.use('/api/cars', carsRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/rent-a-car', rentRouter);
 
+app.post('/single', upload.single('imgUrl'), (req, res) => {
+  console.log(req.file);
+
+  res.send(req.file);
+});
 // Error handler
 const handleError = require('./src/utils/errorHandler');
 

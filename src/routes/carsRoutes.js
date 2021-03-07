@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
+const upload = require('../middleware/multer');
 const {
   createNewCarController,
   editCarController,
   deleteCarController,
   getCarListController,
+  getCarController,
 } = require('../controllers/carsController');
 
 router.all('/', (req, res, next) => {
@@ -14,7 +15,8 @@ router.all('/', (req, res, next) => {
 });
 
 router.get('/', getCarListController);
-router.post('/create-new-car', createNewCarController);
+router.get('/car/:id', getCarController);
+router.post('/create-new-car', upload.single('imgUrl'), createNewCarController);
 router.put('/edit-car/:id', editCarController);
 router.delete('/delete-car/:id', deleteCarController);
 

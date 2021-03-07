@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CarSchema = new Schema({
+  vehicleType: {
+    type: String,
+    maxlength: 50,
+    required: true,
+  },
   brand: {
     type: String,
     maxlength: 50,
@@ -14,12 +19,12 @@ const CarSchema = new Schema({
   imgUrl: {
     type: String,
     maxlength: 100,
-    minlength: 8,
-    required: true,
     default: './imgs/carBg.jbg',
   },
   price: { type: Number, required: true },
+  isRented: { type: Boolean, required: true, default: false },
 });
+
 module.exports = {
   CarSchema: mongoose.model('Car', CarSchema),
 };
