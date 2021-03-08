@@ -1,4 +1,8 @@
-const { findCarById, isRented } = require('../models/cars/Car.model');
+const {
+  findCarById,
+  isRented,
+  numOfAvailableMinus,
+} = require('../models/cars/Car.model');
 const {
   findCustomerByEmail,
   insertCustomer,
@@ -119,6 +123,7 @@ const rentACarController = async (req, res) => {
   try {
     const result = await insertOrder(rentOrder);
     await isRented(car._id);
+    await numOfAvailableMinus(car.model);
     await addToRentals(customer._id, car._id);
 
     if (!result && !result._id)

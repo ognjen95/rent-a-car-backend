@@ -23,6 +23,7 @@ const CarSchema = new Schema({
   },
   price: { type: Number, required: true },
   isRented: { type: Boolean, required: true, default: false },
+  availableNum: { type: Number, required: true, default: 1 },
 });
 
 module.exports = {

@@ -104,6 +104,18 @@ const getClientsRentedCars = (rentals) => {
   });
 };
 
+const numOfAvailableMinus = (model) => {
+  return new Promise((resolve, reject) => {
+    try {
+      CarSchema.updateMany({ model }, { $inc: { availableNum: -1 } })
+        .then((data) => resolve(data))
+        .catch((err) => reject(err));
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   insertCar,
   findCarById,
@@ -112,4 +124,5 @@ module.exports = {
   isRented,
   isReturned,
   getClientsRentedCars,
+  numOfAvailableMinus,
 };
