@@ -18,6 +18,6 @@ router.get('/', getAllCustomers);
 router.get('/customer/:id', getCustomer);
 router.post('/', newCustomerController);
 router.delete('/delete/:id', deleteCustomer);
-router.put('/edit-customer/:id', updateCustomer);
+router.patch('/edit-customer/:id', updateCustomer);
 
 module.exports = router;

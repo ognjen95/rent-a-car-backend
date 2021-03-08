@@ -8,8 +8,10 @@ const rentSchema = new Schema({
   endDate: { type: Date, required: true },
   daysRented: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
+  discountProcent: { type: Number, required: true },
   car: { type: mongoose.Types.ObjectId, required: true, ref: 'Car' },
   customer: { type: mongoose.Types.ObjectId, required: true, ref: 'Customer' },
+  createdAt: { type: Date, required: true, default: Date.now() },
 });
 
 module.exports = {

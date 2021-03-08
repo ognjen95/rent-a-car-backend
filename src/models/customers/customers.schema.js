@@ -30,7 +30,10 @@ const customerSchema = new Schema(
       required: true,
       default: false,
     },
-    rentals: [{ type: Schema.Types.ObjectId, ref: 'Rent orders' }],
+    rentals: [
+      { type: Schema.Types.ObjectId, ref: 'Rent orders' },
+      { type: Date, default: Date.now(), required: true },
+    ],
   },
   {
     timestamps: true,

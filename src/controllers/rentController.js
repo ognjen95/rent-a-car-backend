@@ -6,45 +6,53 @@ const {
 } = require('../models/customers/customers.model');
 
 const { daysBetween } = require('../helpers/daysBetween');
-const { insertOrder } = require('../models/rent/rent.model');
+const {
+  insertOrder,
+  findOrderOfCustomer,
+} = require('../models/rent/rent.model');
+
 //rent a car functionality
 
 const rentACarController = async (req, res) => {
-  const { name, lastName, email, phone, startDate, endDate } = req.body;
+  const { fullName, lastName, email, tel, startDate, endDate } = req.body;
 
+  if (startDate == endDate)
+    return res.status(400).send('You must rent at least 1 day');
   let car;
   let customer;
 
   try {
     car = await findCarById(req.params.id);
 
-    customer = await findCustomerByEmail(email);
+    if ((car && car.isRented) || !car) {
+      return res.status(404).send('Could not find this car, it is rented');
+    }
+
+    const result = await findCustomerByEmail(email);
+
+    if (result) customer = result;
   } catch (error) {
     console.log(error.message);
-    res.status(500).send({ msg: 'Server Error' });
+    res.status(500).send('Car is already rented');
   }
-
-  if (car.isRented) return json({ message: 'Car is already rented' });
 
   // if there is no customer in db registerd, create new one.
   if (!customer) {
-    cutomer = {
-      name,
+    customer = {
+      name: fullName,
       email,
-      phone,
+      phone: tel,
       lastName,
     };
 
     try {
-      customer = await insertCustomer(customer);
+      await insertCustomer(customer)
+        .then((data) => (customer = data))
+        .catch((err) => console.log(err));
     } catch (error) {
       console.log(error.message);
       return res.status(404).json({ msg: 'Could not find or create customer' });
     }
-  }
-
-  if (!car) {
-    return res.status(404).json({ msg: 'Could not this car' });
   }
 
   // calculate how much days car is rented
@@ -52,18 +60,45 @@ const rentACarController = async (req, res) => {
   const date2 = new Date(endDate);
   const daysRented = daysBetween(date1, date2);
 
+  // find out if this is VIP customer
+  const allCustomerOrders = await findOrderOfCustomer(customer._id);
+  const customerOrderDateList = allCustomerOrders.map(
+    (order) => order.createdAt
+  );
+  const today = Date.now();
+  let msInDay = 1000 * 3600 * 24;
+
+  const timesRentedIn60Days = []; // if length is >3 then client is VIP
+
+  customerOrderDateList.map((date) => {
+    let daysSpanInMs = today - date.getTime();
+    let days = daysSpanInMs / msInDay;
+    if (days > 60) {
+      timesRentedIn60Days.push(days);
+    }
+  });
+
   // calculate price and discount
 
   let price = car.price * daysRented;
 
   let discount = 0;
-
+  let discountProcent = 0;
   if (daysRented > 3) {
     discount = price * 0.05;
-  } else if (daysRented > 5) {
+    discountProcent = 5;
+  }
+  if (daysRented > 5) {
     discount = price * 0.07;
-  } else if (daysRented > 10) {
+    discountProcent = 7;
+  }
+  if (daysRented > 10) {
     discount = price * 0.1;
+    discountProcent = 10;
+  }
+  if (timesRentedIn60Days.length > 3) {
+    discount = price * 0.15;
+    discountProcent = 15;
   }
 
   const totalPrice = price - discount;
@@ -71,20 +106,25 @@ const rentACarController = async (req, res) => {
   const rentOrder = {
     name: customer.name,
     lastName: customer.lastName,
+    email: customer.email,
     startDate,
     endDate,
     totalPrice,
     car: car._id,
     customer: customer._id,
     daysRented,
+    discountProcent,
   };
   console.log(rentOrder);
   try {
     const result = await insertOrder(rentOrder);
     await isRented(car._id);
     await addToRentals(customer._id, car._id);
-    if (result && result._id)
-      return res.json({ message: 'Car rented successfuly', result });
+
+    if (!result && !result._id)
+      return res.status(400).json({ message: 'Could not find Your order' });
+
+    return res.json({ message: 'Car rented successfuly', result });
   } catch (error) {
     console.log(error.message);
     return res.json({ msg: 'Could not rent this car, try again later ' });

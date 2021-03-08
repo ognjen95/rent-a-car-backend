@@ -47,7 +47,7 @@ app.use('/api/customers', customersRouter);
 app.use('/api/rent-a-car', rentRouter);
 app.use('/api/upload', uploadRouter);
 
-app.use('uploads', express.static(__dirname + '/uploads'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 // Error handler
 const handleError = require('./src/utils/errorHandler');
 

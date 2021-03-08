@@ -85,7 +85,7 @@ const getCarList = () => {
         } else {
           resolve(data);
         }
-      });
+      }).sort({ isRented: 1 });
     } catch (error) {
       reject(error);
     }
