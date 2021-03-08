@@ -7,6 +7,7 @@ const {
   deleteCarController,
   getCarListController,
   getCarController,
+  carReturnedController,
 } = require('../controllers/carsController');
 const { newCarValidation } = require('../middleware/joiValidator');
 
@@ -19,6 +20,7 @@ router.get('/', getCarListController);
 router.get('/car/:id', getCarController);
 router.post('/create-new-car', newCarValidation, createNewCarController);
 router.put('/edit-car/:id', newCarValidation, editCarController);
+router.patch('/return-car/:id', carReturnedController);
 router.delete('/delete-car/:id', deleteCarController);
 
 module.exports = router;

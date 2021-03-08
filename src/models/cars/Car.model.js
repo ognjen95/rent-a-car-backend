@@ -104,10 +104,34 @@ const getClientsRentedCars = (rentals) => {
   });
 };
 
+const findCarsByModel = (model) => {
+  return new Promise((resolve, reject) => {
+    try {
+      CarSchema.find({ model })
+        .then((data) => resolve(data))
+        .catch((err) => reject(err));
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 const numOfAvailableMinus = (model) => {
   return new Promise((resolve, reject) => {
     try {
       CarSchema.updateMany({ model }, { $inc: { availableNum: -1 } })
+        .then((data) => resolve(data))
+        .catch((err) => reject(err));
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const numOfAvailablePlus = (model) => {
+  return new Promise((resolve, reject) => {
+    try {
+      CarSchema.updateMany({ model }, { $inc: { availableNum: +1 } })
         .then((data) => resolve(data))
         .catch((err) => reject(err));
     } catch (error) {
@@ -125,4 +149,6 @@ module.exports = {
   isReturned,
   getClientsRentedCars,
   numOfAvailableMinus,
+  numOfAvailablePlus,
+  findCarsByModel,
 };

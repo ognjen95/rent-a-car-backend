@@ -3,11 +3,11 @@ const {
   getCarList,
   deleteCar,
   findCarById,
+  numOfAvailablePlus,
+  numOfAvailableMinus,
+  isReturned,
 } = require('../models/cars/Car.model');
-const {
-  deleteCarType,
-  insertCarType,
-} = require('../models/vehicle-types/vehicleTypes.model');
+const { insertCarType } = require('../models/vehicle-types/vehicleTypes.model');
 // @ create car controller
 // @router POST /api/cars/create-new-car
 // @access Public
@@ -21,8 +21,8 @@ const createNewCarController = async (req, res) => {
         status: 'error',
         message: 'Can not create new car now, try again later',
       });
-
     const result = await insertCar(newCarData);
+    numOfAvailablePlus(newCarData.model);
     let typeResult;
     if (result) {
       typeResult = await insertCarType(result);
@@ -62,15 +62,34 @@ const editCarController = async (req, res) => {
     res.json({ status: 'error', message: error.message });
   }
 };
+
+// @ update car is returned controller
+// @router PATCH /api/cars/return-car/:id
+// @access Public
+
+const carReturnedController = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const carId = id;
+    console.log(carId);
+    const result = await isReturned(carId);
+    console.log(result);
+    return res.json({ message: 'Car returned successfuly', result });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: 'error', message: error.message });
+  }
+};
 // @delete car controller
 // @router DELETE /api/cars/delete-car/:id
 // @access Public
 const deleteCarController = async (req, res) => {
   const carId = req.params.id;
-  // const car = await findCarById(carId);
+  const car = await findCarById(carId);
   try {
     if (carId) {
       // result = await deleteCarType(carId);
+      numOfAvailableMinus(car.model);
       deleteCar(carId);
     }
     res.json({ message: 'Car deleted successfuly' });
@@ -112,4 +131,5 @@ module.exports = {
   deleteCarController,
   getCarListController,
   getCarController,
+  carReturnedController,
 };
