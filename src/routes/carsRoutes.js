@@ -8,6 +8,7 @@ const {
   getCarListController,
   getCarController,
 } = require('../controllers/carsController');
+const { newCarValidation } = require('../middleware/joiValidator');
 
 router.all('/', (req, res, next) => {
   //   res.json({ message: 'User router' });
@@ -16,8 +17,8 @@ router.all('/', (req, res, next) => {
 
 router.get('/', getCarListController);
 router.get('/car/:id', getCarController);
-router.post('/create-new-car', createNewCarController);
-router.put('/edit-car/:id', editCarController);
+router.post('/create-new-car', newCarValidation, createNewCarController);
+router.put('/edit-car/:id', newCarValidation, editCarController);
 router.delete('/delete-car/:id', deleteCarController);
 
 module.exports = router;

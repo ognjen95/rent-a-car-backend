@@ -6,6 +6,7 @@ const {
   updateCustomer,
   getCustomer,
 } = require('../controllers/customersController');
+const { newCustomerValidation } = require('../middleware/joiValidator');
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.all('/', (req, res, next) => {
 
 router.get('/', getAllCustomers);
 router.get('/customer/:id', getCustomer);
-router.post('/', newCustomerController);
+router.post('/', newCustomerValidation, newCustomerController);
 router.delete('/delete/:id', deleteCustomer);
 router.patch('/edit-customer/:id', updateCustomer);
 
